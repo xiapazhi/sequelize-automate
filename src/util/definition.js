@@ -6,8 +6,10 @@ function getFieldName(fieldName, camelCase) {
   return camelCase ? _.camelCase(fieldName) : fieldName;
 }
 
-function getModelName(tableName, camelCase) {
-  const modelString = camelCase ? 'Model' : '_model';
+function getModelName(tableName, camelCase, modalNameSuffix) {
+  const modelString = modalNameSuffix ?
+    camelCase ? 'Model' : '_model'
+    : '';
   return `${getFieldName(tableName, camelCase)}${modelString}`;
 }
 
@@ -195,7 +197,7 @@ function getDataType(field) {
 
 /**
  * Process a table
- * @param {object} params { structures, allIndexes, foreignKeys, options: { camelCase, dialect } }
+ * @param {object} params { structures, allIndexes, foreignKeys, options: { camelCase, dialect, modalNameSuffix } }
  * @return {object} { attributes: { filed: { attribute } }, indexes: [{ name, type, fields }] }
  */
 function processTable({
@@ -204,7 +206,7 @@ function processTable({
   foreignKeys,
   options,
 }) {
-  const { camelCase, dialect } = options;
+  const { camelCase, dialect, modalNameSuffix } = options;
   const attributes = {};
   _.forEach(structures, (structure, fieldName) => {
     const key = getFieldName(fieldName, camelCase);
@@ -245,7 +247,7 @@ function processTable({
     const filed = getFieldName(columnName, camelCase);
     attributes[filed].references = {
       key: referencedColumnName,
-      model: getModelName(referencedTableName, camelCase),
+      model: getModelName(referencedTableName, camelCase, modalNameSuffix),
     };
   });
 
@@ -255,20 +257,20 @@ function processTable({
 /**
  * Get model definitions
  * @param {object} tables { structures, indexes, foreignKeys }
- * @param {object} options { camelCase, fileNameCamelCase }
+ * @param {object} options { camelCase, fileNameCamelCase, dialect, modalNameSuffix  }
  * @return {object} [{ modelName, modelFileName, tableName, attributes, indexes }]
  */
 function getModelDefinitions(tables, options) {
-  const { camelCase, fileNameCamelCase, dialect } = options || {};
+  const { camelCase, fileNameCamelCase, dialect, modalNameSuffix } = options || {};
   const definitions = _.map(tables, (table, tableName) => {
     const { attributes, indexes } = processTable({
       structures: table.structures,
       allIndexes: table.indexes,
       foreignKeys: table.foreignKeys,
-      options: { camelCase, dialect },
+      options: { camelCase, dialect, modalNameSuffix },
     });
 
-    const modelName = getModelName(tableName, camelCase);
+    const modelName = getModelName(tableName, camelCase, modalNameSuffix);
     const modelFileName = getFieldName(tableName, fileNameCamelCase);
     return {
       modelName,

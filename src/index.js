@@ -14,6 +14,7 @@ class Automate {
       type: 'js', // Which code style want to generate, supported: js/ts/egg/midway. Default is `js`.
       camelCase: false, // Model name camel case. Default is false.
       fileNameCamelCase: false, // Model file name camel case. Default is false.
+      modalNameSuffix: true, // Model name 'Modal' suffix. Default is true.
       dir: 'models', // What directory to place the models. Default is `models`.
       typesDir: null, // What directory to place the models' definitions (for typescript), default is the same with dir.
       emptyDir: false, // Remove all files in `dir` and `typesDir` directories before generate models.
@@ -34,6 +35,7 @@ class Automate {
     assert(supportTypes.includes(this.options.type), 'type not support');
     assert(_.isBoolean(this.options.camelCase), 'Invalid params camelCase');
     assert(_.isBoolean(this.options.fileNameCamelCase), 'Invalid params fileNameCamelCase');
+    assert(_.isBoolean(this.options.modalNameSuffix), 'Invalid params modalNameSuffix');
     assert(_.isString(this.options.dir), 'Invalid params dir');
     assert(_.isString(this.options.typesDir), 'Invalid params typesDir');
     assert(_.isBoolean(this.options.emptyDir), 'Invalid params cleanDir');
@@ -119,6 +121,7 @@ class Automate {
       skipTables,
       camelCase,
       fileNameCamelCase,
+      modalNameSuffix,
     } = this.options;
     const allTables = await this.getTables({
       tables,
@@ -127,6 +130,7 @@ class Automate {
     const definitions = getModelDefinitions(allTables, {
       camelCase,
       fileNameCamelCase,
+      modalNameSuffix,
       dialect: this.dbOptions.dialect,
     });
     debug('get model definitions');
