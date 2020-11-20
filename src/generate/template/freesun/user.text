@@ -1,0 +1,72 @@
+/* eslint-disable*/
+
+'use strict';
+
+module.exports = dc => {
+  const DataTypes = dc.ORM;
+  const sequelize = dc.orm;
+  
+  const UserModel = sequelize.define('userModel',{
+    id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: null,
+      field: 'id',
+      unique: 'uk_id',
+    },
+    name: {
+      type: DataTypes.STRING(32),
+      allowNull: false,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: 'user name',
+      field: 'name',
+    },
+    email: {
+      type: DataTypes.STRING(32),
+      allowNull: false,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: 'user email',
+      field: 'name',
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: 'created time',
+      field: 'created_at',
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: null,
+      primaryKey: false,
+      autoIncrement: false,
+      comment: 'update time',
+      field: 'updated_at',
+    },
+  },{
+    tableName: 'user',
+    comment: 'user table',
+    indexes: [{
+      name: 'uk_name_email',
+      unique: true,
+      fields: [
+        'name',
+        'email',
+      ],
+    }]
+  });
+
+  dc.models.UserModel = UserModel;
+  
+  return UserModel;
+};

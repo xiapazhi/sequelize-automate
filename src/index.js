@@ -21,7 +21,9 @@ class Automate {
       tables: null, // Use these tables, Example: ['user'], default is null.
       skipTables: null, // Skip these tables. Example: ['user'], default is null.
       tsNoCheck: false, // Whether add `@ts-nocheck` to model files, default is false.
-      match: null // Regex to match table name
+      match: null, // Regex to match table name,
+      ignorePrefix: null, // Ignore the prefix of table name(for freesun), Example: ['t_']. Default is null
+      attrLength: true,// Whether to generate attribute length(design for freesun，but  use for any type)
     };
 
     // https://sequelize.org/master/class/lib/sequelize.js~Sequelize.html#instance-constructor-constructor
@@ -31,7 +33,7 @@ class Automate {
     // default `options.typesDir` is the same with `options.dir`
     this.options.typesDir = this.options.typesDir || this.options.dir;
 
-    const supportTypes = ['js', 'ts', 'egg', 'midway', '@ali/midway'];
+    const supportTypes = ['freesun', 'js', 'ts', 'egg', 'midway', '@ali/midway'];
     assert(supportTypes.includes(this.options.type), 'type not support');
     assert(_.isBoolean(this.options.camelCase), 'Invalid params camelCase');
     assert(_.isBoolean(this.options.fileNameCamelCase), 'Invalid params fileNameCamelCase');
@@ -40,8 +42,10 @@ class Automate {
     assert(_.isString(this.options.typesDir), 'Invalid params typesDir');
     assert(_.isBoolean(this.options.emptyDir), 'Invalid params cleanDir');
     assert(_.isNull(this.options.tables) || _.isArray(this.options.tables), 'Invalid params table');
-    assert(_.isNull(this.options.skipTables) || _.isArray(this.options.skipTables), 'invalid params table');
+    assert(_.isNull(this.options.skipTables) || _.isArray(this.options.skipTables), 'invalid params skipTables');
     assert(_.isBoolean(this.options.tsNoCheck), 'Invalid params tsNoCheck');
+    assert(_.isNull(this.options.ignorePrefix) || _.isArray(this.options.ignorePrefix), 'invalid params ignorePrefix');
+    assert(_.isBoolean(this.options.attrLength), 'Invalid params attrLength');
 
     this.sequelize = new Sequelize(this.dbOptions);
     this.queryInterface = this.sequelize.getQueryInterface();
@@ -89,6 +93,7 @@ class Automate {
     });
 
     debug('tableNames: ', tableNames);
+
     const tableStructures = await Promise.all(tableNames.map(
       (tableName) => this.queryInterface.describeTable(tableName),
     ));
@@ -122,6 +127,8 @@ class Automate {
       camelCase,
       fileNameCamelCase,
       modalNameSuffix,
+      ignorePrefix,
+      attrLength,
     } = this.options;
     const allTables = await this.getTables({
       tables,
@@ -132,6 +139,8 @@ class Automate {
       fileNameCamelCase,
       modalNameSuffix,
       dialect: this.dbOptions.dialect,
+      ignorePrefix,
+      attrLength,
     });
     debug('get model definitions');
     return definitions;
@@ -149,12 +158,16 @@ class Automate {
       dir,
       typesDir,
       emptyDir,
+      ignorePrefix,
+      attrLength,
     } = this.options;
     const definitions = await this.getDefinitions({
       tables,
       skipTables,
       camelCase,
       fileNameCamelCase,
+      ignorePrefix,
+      attrLength,
     });
 
     const codes = generate(definitions, {

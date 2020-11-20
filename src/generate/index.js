@@ -1,3 +1,4 @@
+const processFS = require('./freesun');
 const processJS = require('./javascript');
 const processTS = require('./typescript');
 const processMidway = require('./midway');
@@ -11,6 +12,8 @@ const processMidway = require('./midway');
 function generate(definition, options) {
   const { type, tsNoCheck } = options;
   switch (type) {
+    case 'freesun':
+      return processFS(definition, { isEgg: false });
     case 'js':
       return processJS(definition, { isEgg: false });
     case 'ts':

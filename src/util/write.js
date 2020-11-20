@@ -14,7 +14,7 @@ async function writeFile(code, dir, fileName) {
 /**
  * Write files
  * @param {string} codes [{ file, code, fileType }]
-  * @param {object} options { dir, typesDir }
+ * @param {object} options { dir, typesDir }
  */
 async function write(codes, options) {
   if (options.emptyDir) {

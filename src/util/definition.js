@@ -2,15 +2,24 @@ const _ = require('lodash');
 
 const regexpPostgresAutoIncrementValue = /nextval\(.*seq::regclass\)/;
 
-function getFieldName(fieldName, camelCase) {
-  return camelCase ? _.camelCase(fieldName) : fieldName;
+function getFieldName(fieldName, { camelCase, ignorePrefix }) {
+  let nameString = fieldName;
+  if (_.isArray(ignorePrefix)) {
+    for (let p of ignorePrefix) {
+      if (nameString.indexOf(p) == 0) {
+        nameString = nameString.slice(p.length);
+        break;
+      }
+    }
+  }
+  return camelCase ? _.camelCase(nameString) : nameString;
 }
 
-function getModelName(tableName, camelCase, modalNameSuffix) {
+function getModelName(tableName, { camelCase, modalNameSuffix, ignorePrefix }) {
   const modelString = modalNameSuffix ?
     camelCase ? 'Model' : '_model'
     : '';
-  return `${getFieldName(tableName, camelCase)}${modelString}`;
+  return `${getFieldName(tableName, { camelCase, ignorePrefix })}${modelString}`;
 }
 
 
@@ -89,9 +98,11 @@ function getAutoIncrement(field, dialect) {
 /**
  * Get data type
  * @param {object} field table field
+ * @param {object} options { attrLength, }
  * @return {string}
  */
-function getDataType(field) {
+function getDataType(field, option) {
+  const { attrLength } = option || {};
   if (field.type.indexOf('ENUM') === 0) {
     return `DataTypes.${field.type}`;
   }
@@ -106,7 +117,9 @@ function getDataType(field) {
   const length = attr.match(/\(\d+\)/);
   // TODO: remove width for integer?
 
-  const typeLength = !_.isNull(length) ? length : '';
+  const typeLength = attrLength ?
+    !_.isNull(length) ? length : ''
+    : '';
   if (attr.match(/^(smallint|mediumint|tinyint|int)/)) {
     let type = `DataTypes.INTEGER${typeLength}`;
     const unsigned = attr.match(/unsigned/i);
@@ -135,7 +148,7 @@ function getDataType(field) {
     return type;
   }
 
-  if (attr.match(/^varchar/)) {
+  if (attr.match(/^varchar/) || attr.match(/^character varying/)) {
     return `DataTypes.STRING${typeLength}`;
   }
 
@@ -197,7 +210,7 @@ function getDataType(field) {
 
 /**
  * Process a table
- * @param {object} params { structures, allIndexes, foreignKeys, options: { camelCase, dialect, modalNameSuffix } }
+ * @param {object} params { structures, allIndexes, foreignKeys, options: { camelCase, dialect, modalNameSuffix, attrLength } }
  * @return {object} { attributes: { filed: { attribute } }, indexes: [{ name, type, fields }] }
  */
 function processTable({
@@ -206,13 +219,13 @@ function processTable({
   foreignKeys,
   options,
 }) {
-  const { camelCase, dialect, modalNameSuffix } = options;
+  const { camelCase, dialect, modalNameSuffix, attrLength } = options;
   const attributes = {};
   _.forEach(structures, (structure, fieldName) => {
-    const key = getFieldName(fieldName, camelCase);
+    const key = getFieldName(fieldName, { camelCase });
     attributes[key] = _.cloneDeep(structure);
     attributes[key].field = fieldName;
-    attributes[key].type = getDataType(structure);
+    attributes[key].type = getDataType(structure, { attrLength });
     attributes[key].defaultValue = getDefaultValue(structure, dialect);
     attributes[key].autoIncrement = getAutoIncrement(structure, dialect);
   });
@@ -222,11 +235,11 @@ function processTable({
     const fields = index.fields.map((o) => o.attribute);
     if (index.primary === true) {
       _.forEach(fields, (fieldName) => {
-        const field = getFieldName(fieldName, camelCase);
+        const field = getFieldName(fieldName, { camelCase });
         attributes[field].primaryKey = true;
       });
     } else if (index.unique && fields.length === 1) {
-      const field = getFieldName(fields[0], camelCase);
+      const field = getFieldName(fields[0], { camelCase });
       attributes[field].unique = index.name;
     } else {
       indexes.push({
@@ -244,10 +257,10 @@ function processTable({
       referencedTableName,
       referencedColumnName,
     } = foreignKey;
-    const filed = getFieldName(columnName, camelCase);
+    const filed = getFieldName(columnName, { camelCase });
     attributes[filed].references = {
       key: referencedColumnName,
-      model: getModelName(referencedTableName, camelCase, modalNameSuffix),
+      model: getModelName(referencedTableName, { camelCase, modalNameSuffix }),
     };
   });
 
@@ -257,21 +270,21 @@ function processTable({
 /**
  * Get model definitions
  * @param {object} tables { structures, indexes, foreignKeys }
- * @param {object} options { camelCase, fileNameCamelCase, dialect, modalNameSuffix  }
+ * @param {object} options { camelCase, fileNameCamelCase, dialect, modalNameSuffix, ignorePrefix, attrLength, }
  * @return {object} [{ modelName, modelFileName, tableName, attributes, indexes }]
  */
 function getModelDefinitions(tables, options) {
-  const { camelCase, fileNameCamelCase, dialect, modalNameSuffix } = options || {};
+  const { camelCase, fileNameCamelCase, dialect, modalNameSuffix, ignorePrefix, attrLength } = options || {};
   const definitions = _.map(tables, (table, tableName) => {
     const { attributes, indexes } = processTable({
       structures: table.structures,
       allIndexes: table.indexes,
       foreignKeys: table.foreignKeys,
-      options: { camelCase, dialect, modalNameSuffix },
+      options: { camelCase, dialect, modalNameSuffix, attrLength },
     });
 
-    const modelName = getModelName(tableName, camelCase, modalNameSuffix);
-    const modelFileName = getFieldName(tableName, fileNameCamelCase);
+    const modelName = getModelName(tableName, { camelCase, modalNameSuffix, ignorePrefix });
+    const modelFileName = getFieldName(tableName, { fileNameCamelCase, ignorePrefix });
     return {
       modelName,
       modelFileName,

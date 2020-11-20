@@ -1,5 +1,5 @@
 {
-  "name": "sequelize-automate",
+  "name": "sequelize-automate-freesun",
   "version": "1.2.2",
   "description": "Automatically generate bare sequelize models from your database.",
   "main": "index",
@@ -15,10 +15,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nodejh/sequelize-automate.git"
+    "url": "https://github.com/xiapazhi/sequelize-automate.git"
   },
   "bugs": {
-    "url": "https://github.com/nodejh/sequelize-automate/issues"
+    "url": "https://github.com/xiapazhi/sequelize-automate/issues"
   },
   "nyc": {
     "exclude": [
@@ -33,7 +33,7 @@
   "engines": {
     "node": ">=0.10"
   },
-  "author": "nodejh <jianghangscu@gmail.com>",
+  "author": "xiapazhi <grazing-stars@qq.com>",
   "license": "MIT",
   "dependencies": {
     "@babel/generator": "^7.7.4",
