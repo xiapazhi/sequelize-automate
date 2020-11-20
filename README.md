@@ -1,6 +1,6 @@
 # Sequelize-Automate-Freesun
 
-<span style="display:none">
+<span style='display:none'>
 
 [![NPM version][npm-image]][npm-url]
 [![npm download][download-image]][download-url]
