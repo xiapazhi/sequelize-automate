@@ -1,13 +1,12 @@
 # Sequelize-Automate-Freesun
 
-<span style='display:none'>
-
-[![NPM version][npm-image]][npm-url]
+<!-- [![NPM version][npm-image]][npm-url]
 [![npm download][download-image]][download-url]
 [![build status][travis-image]][travis-url]
 [![Test coverage][codecov-image]][codecov-url]
 [![David deps][david-image]][david-url]
-[![Known Vulnerabilities][snyk-image]][snyk-url]
+[![Known Vulnerabilities][snyk-image]][snyk-url] -->
+
 <!-- [![Greenkeeper badge](https://badges.greenkeeper.io/nodejh/sequelize-automate.svg)](https://greenkeeper.io/) -->
 <!-- [![Build Status](http://img.shields.io/travis/nodejh/sequelize-automate/master.svg)](https://travis-ci.org/nodejh/sequelize-automate) -->
 <!-- [![Dependency Status](https://david-dm.org/nodejh/sequelize-automate.svg)](https://david-dm.org/nodejh/sequelize-automate) -->
@@ -27,7 +26,6 @@
 [download-image]: https://img.shields.io/npm/dm/sequelize-automate.svg?style=flat-square
 [download-url]: https://npmjs.org/package/sequelize-automate
 
-</span>
 
 Automatically generate models for [SequelizeJS](https://github.com/sequelize/sequelize). Support javascript, typescript, egg.js and midway.
 
