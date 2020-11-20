@@ -19,4 +19,6 @@
 - fix: Data type "double unsigned" (MySQL) throws an error. [#17](https://github.com/nodejh/sequelize-automate/issues/17)
 - fix: ReferenceError: sequelize is not defined. [#21](https://github.com/nodejh/sequelize-automate/issues/21)
 
+## 2020.11.20 1.2.2
 
+- add: type freesun
