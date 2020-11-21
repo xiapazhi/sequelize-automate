@@ -272,7 +272,7 @@ const dbOptions = {
 
 // Automate options
 const options = {
-    type: 'js', // Which code style want to generate, supported: js/ts/egg/midway. Default is `js` .
+    type: 'js', // Which code style want to generate, supported: js/ts/egg/midway/freesun. Default is `js` .
     camelCase: false, // Model name camel case. Default is false.
     fileNameCamelCase: true, // Model file name camel case. Default is false.
     modalNameSuffix: true, // Model name 'Modal' suffix. Default is true.
